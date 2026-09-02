@@ -1,4 +1,260 @@
-<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Household Kanban</title> <style> * { box-sizing: border-box; } body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f6f8; color: #202124; } header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: white; border-bottom: 1px solid #ddd; } header h1 { margin: 0; font-size: 24px; } #addTaskBtn { background: #2563eb; color: white; border: none; padding: 10px 16px; border-radius: 8px; font-size: 14px; cursor: pointer; } #addTaskBtn:hover { background: #1d4ed8; } .board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; padding: 25px; min-height: calc(100vh - 80px); } .column { background: #e9eaee; border-radius: 12px; padding: 15px; min-height: 500px; } .column-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; } .column-header h2 { margin: 0; font-size: 16px; } .task-count { background: #d1d5db; padding: 3px 8px; border-radius: 20px; font-size: 12px; } .task { background: white; border-radius: 10px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.08); cursor: grab; } .task:active { cursor: grabbing; } .task h3 { margin: 0 0 8px; font-size: 15px; } .task p { margin: 0 0 12px; color: #666; font-size: 13px; } .task-meta { display: flex; justify-content: space-between; font-size: 12px; color: #777; } .delete-btn { border: none; background: none; color: #aaa; cursor: pointer; font-size: 16px; } .delete-btn:hover { color: #ef4444; } .drag-over { background: #dbeafe; } .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); align-items: center; justify-content: center; padding: 20px; } .modal-content { background: white; width: 100%; max-width: 450px; border-radius: 14px; padding: 25px; } .modal-content h2 { margin-top: 0; } .form-group { margin-bottom: 15px; } .form-group label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; } .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 7px; font-size: 14px; } .form-group textarea { min-height: 80px; resize: vertical; } .modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; } .cancel-btn, .save-btn { border: none; padding: 10px 16px; border-radius: 7px; cursor: pointer; } .cancel-btn { background: #e5e7eb; } .save-btn { background: #2563eb; color: white; } @media (max-width: 900px) { .board { grid-template-columns: repeat(2, 1fr); } } @media (max-width: 600px) { .board { grid-template-columns: 1fr; } } </style> </head> <body> <header> <h1>🏠 Household Board</h1> <button id="addTaskBtn">+ Add Task</button> </header> <main class="board"> <section class="column" data-status="todo"> <div class="column-header"> <h2>To Do</h2> <span class="task-count">0</span> </div> <div class="tasks"></div> </section> <section class="column" data-status="progress"> <div class="column-header"> <h2>In Progress</h2> <span class="task-count">0</span> </div> <div class="tasks"></div> </section> <section class="column" data-status="blocked"> <div class="column-header"> <h2>Blocked</h2> <span class="task-count">0</span> </div> <div class="tasks"></div> </section> <section class="column" data-status="done"> <div class="column-header"> <h2>Done</h2> <span class="task-count">0</span> </div> <div class="tasks"></div> </section> </main> <div class="modal" id="taskModal"> <div class="modal-content">
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>Household Kanban</title> <style>
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: #fff0f6;
+    color: #5a3042;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: #fff8fb;
+    border-bottom: 2px solid #f3c4d8;
+    box-shadow: 0 2px 10px rgba(180, 90, 130, 0.08);
+  }
+
+  header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #b84d78;
+  }
+
+  #addTaskBtn {
+    background: #e889ad;
+    color: white;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(200, 100, 140, 0.2);
+  }
+
+  #addTaskBtn:hover {
+    background: #d96f98;
+    transform: translateY(-1px);
+  }
+
+  .board {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    padding: 25px;
+    min-height: calc(100vh - 80px);
+  }
+
+  .column {
+    background: #f9dce8;
+    border: 1px solid #f2bfd3;
+    border-radius: 18px;
+    padding: 15px;
+    min-height: 500px;
+    box-shadow: 0 4px 12px rgba(180, 90, 130, 0.08);
+  }
+
+  .column:nth-child(2) {
+    background: #fce5ee;
+  }
+
+  .column:nth-child(3) {
+    background: #f8d6e4;
+  }
+
+  .column:nth-child(4) {
+    background: #fcebf2;
+  }
+
+  .column-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .column-header h2 {
+    margin: 0;
+    font-size: 16px;
+    color: #9d4568;
+  }
+
+  .task-count {
+    background: #fff5f9;
+    color: #b84d78;
+    padding: 4px 9px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .task {
+    background: #fffafb;
+    border: 1px solid #f3ccdc;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 3px 8px rgba(180, 90, 130, 0.1);
+    cursor: grab;
+  }
+
+  .task:hover {
+    box-shadow: 0 5px 12px rgba(180, 90, 130, 0.15);
+    transform: translateY(-1px);
+  }
+
+  .task:active {
+    cursor: grabbing;
+  }
+
+  .task h3 {
+    margin: 0 0 8px;
+    font-size: 15px;
+    color: #68394d;
+  }
+
+  .task p {
+    margin: 0 0 12px;
+    color: #8b6574;
+    font-size: 13px;
+  }
+
+  .task-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: #a06f83;
+  }
+
+  .delete-btn {
+    border: none;
+    background: none;
+    color: #d6a1b6;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
+  .delete-btn:hover {
+    color: #d94f7d;
+  }
+
+  .drag-over {
+    background: #f4bfd4 !important;
+  }
+
+  /* Modal */
+
+  .modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(120, 55, 80, 0.35);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .modal-content {
+    background: #fff9fc;
+    border: 2px solid #f2c5d8;
+    width: 100%;
+    max-width: 450px;
+    border-radius: 20px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(130, 60, 90, 0.15);
+  }
+
+  .modal-content h2 {
+    margin-top: 0;
+    color: #b84d78;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+
+  .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    color: #81455e;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #efbfd2;
+    background: #fffafd;
+    color: #5a3042;
+    border-radius: 10px;
+    font-size: 14px;
+    outline: none;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: #df83a9;
+    box-shadow: 0 0 0 3px #fce3ed;
+  }
+
+  .form-group textarea {
+    min-height: 80px;
+    resize: vertical;
+  }
+
+  .modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .cancel-btn,
+  .save-btn {
+    border: none;
+    padding: 10px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  .cancel-btn {
+    background: #f5dce6;
+    color: #875066;
+  }
+
+  .save-btn {
+    background: #e889ad;
+    color: white;
+  }
+
+  .save-btn:hover {
+    background: #d96f98;
+  }
+
+  @media (max-width: 900px) {
+    .board {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (max-width: 600px) {
+    .board {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+ </head> <body> <header> <h1>🏠 Household Board</h1> <button id="addTaskBtn">+ Add Task</button> </header> <main class="board"> <section class="column" data-status="todo"> <div class="column-header"> <h2>To Do</h2> <span class="task-count">0</span> </div> <div class="tasks"></div> </section> <section class="column" data-status="progress"> <div class="column-header"> <h2>In Progress</h2> <span class="task-count">0</span> </div> <div class="tasks"></div> </section> <section class="column" data-status="blocked"> <div class="column-header"> <h2>Blocked</h2> <span class="task-count">0</span> </div> <div class="tasks"></div> </section> <section class="column" data-status="done"> <div class="column-header"> <h2>Done</h2> <span class="task-count">0</span> </div> <div class="tasks"></div> </section> </main> <div class="modal" id="taskModal"> <div class="modal-content">
 <h2>Add Task</h2>
 
 <div class="form-group">
